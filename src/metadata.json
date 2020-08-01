@@ -1,0 +1,13 @@
+{
+  "uuid": "omen-keyboard-gnome-extension",
+  "name": "Omen keyboard control",
+  "gettext-domain": "omen-keyboard-gnome-extension", 
+  "settings-schema": "org.gnome.shell.extensions.omen-keyboard", 
+  "description": "Controlling application for HP Omen keyboard",
+  "original-authors": "Taras Zakharchenko aka player999 aka FT232BM",
+  "url": "https://github.com/player999/omen-keyboard-gnome-extension",
+  "shell-version": [
+    "3.36"
+  ],
+  "version": 1
+}

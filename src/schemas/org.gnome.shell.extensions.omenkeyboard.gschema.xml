@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="org.gnome.shell.extensions.omen-keyboard">
+  <schema path="/org/gnome/shell/extensions/omen-keyboard/" id="org.gnome.shell.extensions.omen-keyboard">
+    <key type="i" name="brightness">
+      <default>3</default>
+      <summary>Brightness Slider position</summary>
+      <description>Set slider position of the maximum brightness. Must be in range 0 and 3</description>
+    </key>
+    <key type="b" name="restore-on-restart">
+        <default>true</default>
+        <summary>Restore state after computer restart</summary>
+        <description>Save the state of the Backlight keyboard in order to restore it after a restart.</description>
+    </key>
+    <key type="b" name="menu-opened">
+        <default>false</default>
+        <summary>Show submenu</summary>
+        <description>Show the submenu of left center right light</description>
+    </key>
+  </schema>
+</schemalist>
