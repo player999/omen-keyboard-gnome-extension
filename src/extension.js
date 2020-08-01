@@ -15,6 +15,8 @@
 
 	// Made by Me := Fanelia
 	// This extension put a menu item on the Status Menu that change the backlight keyboard light using clevo-xsm-wmi by tuxedo
+
+	// Modified for Omen by Taras Zakharchenko
 	
 	// Import St because is the library that allow you to create UI elements 
 	const St = imports.gi.St;
@@ -40,7 +42,6 @@
 	const GLib = imports.gi.GLib;
 	const GObject = imports.gi.GObject;
 	
-    const Colors=["000000","FF0000","00FF00","0000FF","FFFF00","FF00FF","00FFFF","FFFFFF"]
 	const ExtensionUtils = imports.misc.extensionUtils;
 	const Me = ExtensionUtils.getCurrentExtension();
 	
@@ -52,6 +53,7 @@
 	const SHELL_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
 
 	const Slider = imports.ui.slider;
+	const CheckBox = imports.ui.checkBox;
 
 	//Import Lang because we will write code in a Object Oriented Manner
 
@@ -59,9 +61,11 @@
 
 	// GLobal vairables
 	// UI Obj
-	let sliderBright;
+	let sliderBright, popupMenuExpander, popupMenuSpeedExpander;
+	let rippleMenuItem, lwaveMenuItem, rwaveMenuItem, breatheMenuItem;
+	let slowMenuItem, mediumMenuItem, fastMenuItem;
 	// Variables
-	let menuOpened,saveState,bs;
+	let menuOpened,bs;
 	let settings;
 	let directory;
 	
@@ -82,6 +86,30 @@
 
 			// Created menu icon
 
+			// Animations menu
+			rippleMenuItem = new PopupMenu.PopupSwitchMenuItem('Ripple', false);
+			lwaveMenuItem = new PopupMenu.PopupSwitchMenuItem('Left wave', false);
+			rwaveMenuItem = new PopupMenu.PopupSwitchMenuItem('Right wave', false);
+			breatheMenuItem = new PopupMenu.PopupSwitchMenuItem('Breathe', false);
+			
+			popupMenuExpander = new PopupMenu.PopupSubMenuMenuItem('Animation mode');
+
+			popupMenuExpander.menu.addMenuItem(rippleMenuItem);
+			popupMenuExpander.menu.addMenuItem(lwaveMenuItem);
+			popupMenuExpander.menu.addMenuItem(rwaveMenuItem);
+			popupMenuExpander.menu.addMenuItem(breatheMenuItem);
+			this.menu.addMenuItem(popupMenuExpander);
+
+			slowMenuItem = new PopupMenu.PopupSwitchMenuItem('Slow', false);
+			mediumMenuItem = new PopupMenu.PopupSwitchMenuItem('Medium', false);
+			fastMenuItem = new PopupMenu.PopupSwitchMenuItem('Fast', false);
+
+			popupMenuSpeedExpander = new PopupMenu.PopupSubMenuMenuItem('Animation speed');
+			popupMenuSpeedExpander.menu.addMenuItem(slowMenuItem);
+			popupMenuSpeedExpander.menu.addMenuItem(mediumMenuItem);
+			popupMenuSpeedExpander.menu.addMenuItem(fastMenuItem);
+			this.menu.addMenuItem(popupMenuSpeedExpander);
+
 			// This is a menu separator
 			this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 			let label2 = new St.Label({text:'Brightness  ',y_expand: true,y_align: Clutter.ActorAlign.START });
@@ -97,25 +125,130 @@
 
 			// This is a menu separator
 			this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-			
+
+			_ResetBrightness();
+			_LoadSettingsToInterface();
+			_ApplyConfiguration();
+
 			sliderBright.connect('notify::value', _onSliderBrightnessChanged);
+			rippleMenuItem.connect('toggled', _onAnimationRippleSelect);
+			lwaveMenuItem.connect('toggled', _onAnimationLwaveSelect);
+			rwaveMenuItem.connect('toggled', _onAnimationRwaveSelect);
+			breatheMenuItem.connect('toggled', _onAnimationBreatheSelect);
+			
+			slowMenuItem.connect('toggled', _onAnimationSlowSelect);
+			mediumMenuItem.connect('toggled', _onAnimationMediumSelect);
+			fastMenuItem.connect('toggled', _onAnimationFastSelect);
 		}	
+	}
+
+	function _LoadSettingsToInterface() {
+		anitype = settings.get_string('animation-type')
+		if(anitype == 'ripple')
+		{
+			rippleMenuItem.setToggleState(true);
+		}
+		else if(anitype == 'left_wave')
+		{
+			lwaveMenuItem.setToggleState(true);
+		}
+		else if(anitype == 'right_wave')
+		{
+			rwaveMenuItem.setToggleState(true);
+		}
+		else if(anitype == 'breathe')
+		{
+			breatheMenuItem.setToggleState(true);
+		}
+
+		sliderBright.value = 3 * settings.get_int('brightness');
+	}
+
+	function _onAnimationSlowSelect(toggled) {
+		mediumMenuItem.setToggleState(false);
+		fastMenuItem.setToggleState(false);
+		slowMenuItem.setToggleState(true);
+		settings.set_string('animation-speed', 'slow');
+		_ApplyConfiguration();
+	}
+
+	function _onAnimationMediumSelect(toggled) {
+		slowMenuItem.setToggleState(false);
+		fastMenuItem.setToggleState(false);
+		mediumMenuItem.setToggleState(true);
+		settings.set_string('animation-speed', 'medium');
+		_ApplyConfiguration();
+	}
+
+	function _onAnimationFastSelect(toggled) {
+		slowMenuItem.setToggleState(false);
+		mediumMenuItem.setToggleState(false);
+		fastMenuItem.setToggleState(true);
+		settings.set_string('animation-speed', 'fast');
+		_ApplyConfiguration();
+	}
+
+	function _onAnimationRippleSelect(toggled) {
+		lwaveMenuItem.setToggleState(false);
+		rwaveMenuItem.setToggleState(false);
+		breatheMenuItem.setToggleState(false);
+		if(rippleMenuItem.state == false)
+		{
+			settings.set_string('animation-type', 'off');
+			_ResetBrightness();
+		}
+		else
+			settings.set_string('animation-type', 'ripple');
+		_ApplyConfiguration();
+	}
+
+	function _onAnimationLwaveSelect(toggled) {
+		rippleMenuItem.setToggleState(false);
+		rwaveMenuItem.setToggleState(false);
+		breatheMenuItem.setToggleState(false);
+		if(lwaveMenuItem.state == false)
+		{
+			settings.set_string('animation-type', 'off');
+			_ResetBrightness();
+		}
+		else
+			settings.set_string('animation-type', 'left_wave');
+		_ApplyConfiguration();
+	}
+
+	function _onAnimationRwaveSelect(toggled) {
+		rippleMenuItem.setToggleState(false);
+		lwaveMenuItem.setToggleState(false);
+		breatheMenuItem.setToggleState(false);
+		if(rwaveMenuItem.state == false)
+		{
+			settings.set_string('animation-type', 'off');
+			_ResetBrightness();
+		}
+		else
+			settings.set_string('animation-type', 'right_wave');
+		_ApplyConfiguration();
+	}
+
+	function _onAnimationBreatheSelect(toggled) {
+		rippleMenuItem.setToggleState(false);
+		lwaveMenuItem.setToggleState(false);
+		rwaveMenuItem.setToggleState(false);
+		if(breatheMenuItem.state == false)
+		{
+			settings.set_string('animation-type', 'off');
+			_ResetBrightness();
+		}
+		else
+			settings.set_string('animation-type', 'breathe');
+		_ApplyConfiguration();
 	}
 
 	// Update brightness value if slider has changed
 	function _onSliderBrightnessChanged() {
-		// Change luminosity value
-		let old=bs;
-		bs=Math.round(sliderBright.value * 3);
-		if(old!=bs){
-			// Write on file 
-			_ApplyBrightness();
-			
-			if(saveState) {
-				// Save settings
-			    	settings.set_int('brightness', bs);
-			}
-		}
+		bs=Math.floor(sliderBright.value * 3);
+		_ApplyConfiguration();
+		settings.set_int('brightness', bs);
 	}
 
 	function _openSubmenu(){
@@ -133,16 +266,26 @@
 		}
 	}
 
-	function _SaveCurrentState(){
-		settings.set_int('brightness',bs);
+	function _ResetBrightness()
+	{
+		let encoderToolPath='/usr/bin/encoder';
+		let args = [encoderToolPath, "-s"];
+		GLib.spawn_sync(null, args, null, GLib.SpawnFlags.SEARCH_PATH, null);
 	}
 
-	function _ApplyBrightness(){
+	function _ApplyConfiguration(){
 		let encoderToolPath='/usr/bin/encoder';
 		encoderToolQ = Gio.File.new_for_path(encoderToolPath);
+		let args = [encoderToolPath, "-b", settings.get_int('brightness').toString(10)];
+		if (settings.get_string('animation-type') != "off")
+		{
+			args.push("-a");
+			args.push(settings.get_string('animation-type'));
 
-		let args = [encoderToolPath, "-b", bs.toString(10)]
-		log(args.join(" "));
+			args.push("-v");
+			args.push(settings.get_string('animation-speed'));
+		}
+
 		GLib.spawn_sync(null, args, null, GLib.SpawnFlags.SEARCH_PATH, null);
 	}
 
@@ -157,16 +300,15 @@
 	function init() {
 		settings = Convenience.getSettings();
 		menuOpened=settings.get_boolean('menu-opened');
-		saveState=settings.get_boolean('restore-on-restart');
 		bs=settings.get_int('brightness');
-		_ApplyBrightness();
+		_ApplyConfiguration();
 		log(`initializing ${Me.metadata.name} version ${Me.metadata.version}`);
 	}
 
 	function enable() {
 		log(`enabling ${Me.metadata.name} version ${Me.metadata.version}`);
 		indicator = new OmenKeyboard();
-		_ApplyBrightness();
+		_ApplyConfiguration();
 		Main.panel.addToStatusArea(`${Me.metadata.name} Indicator`, indicator,0,'right');
 	}
 

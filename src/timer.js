@@ -35,7 +35,7 @@ const Timer = new Lang.Class({
 	
 	startTimer: function() {
 		if (!this._timerId) {
-		    let sliderValue = this._settings.get_int('slider-value') / 100.0;
+		    let sliderValue = this._settings.get_int('slider-value');
 		    this._timerValue = Math.floor(sliderValue * this._settings.get_int('max-timer-value'));
 		    
 		    if(!this._settings.get_boolean('root-mode-value')) {

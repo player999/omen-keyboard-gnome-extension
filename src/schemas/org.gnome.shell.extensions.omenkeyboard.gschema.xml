@@ -6,15 +6,25 @@
       <summary>Brightness Slider position</summary>
       <description>Set slider position of the maximum brightness. Must be in range 0 and 3</description>
     </key>
+    <key type="s" name="animation-type">
+      <default l10n="messages">"off"</default>
+      <summary>Animation type</summary>
+      <description>Type of animation of keyboard. Can be off, or ripple, or breathe, or left_wave, or right_wave </description>
+    </key>
+    <key type="s" name="animation-speed">
+      <default l10n="messages">"fast"</default>
+      <summary>Animation speed</summary>
+      <description>The speed of animation of keyboard. Can be slow. or medium, or fast</description>
+    </key>
     <key type="b" name="restore-on-restart">
         <default>true</default>
         <summary>Restore state after computer restart</summary>
         <description>Save the state of the Backlight keyboard in order to restore it after a restart.</description>
     </key>
     <key type="b" name="menu-opened">
-        <default>false</default>
-        <summary>Show submenu</summary>
-        <description>Show the submenu of left center right light</description>
+      <default>false</default>
+      <summary>Show submenu</summary>
+      <description>Show the submenu of left center right light</description>
     </key>
   </schema>
 </schemalist>
